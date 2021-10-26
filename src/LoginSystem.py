@@ -1,5 +1,6 @@
+import os
+import time
 from abc import ABC, abstractmethod
-from os.path import exists
 
 
 class AuthenticationSystem(ABC):
@@ -15,7 +16,7 @@ class AuthenticationSystem(ABC):
     def register_user(self, username, password):
         pass
 
-    #updates an already existing user credentials
+    # updates an already existing user credentials
     @abstractmethod
     def update_user_credentials(self, username, new_password):
         pass
@@ -35,7 +36,7 @@ class InsecureAuthenticationSystem(AuthenticationSystem):
     def __init__(self, credentials_file):
         self.__credentials_file = credentials_file
         self.__user_credentials_dict = {}
-        if not exists(f"./{self.__credentials_file}"):
+        if not os.path.exists(f"./{self.__credentials_file}"):
             open(self.__credentials_file, "w").close()
         self.__credentials_load()
 
@@ -46,7 +47,8 @@ class InsecureAuthenticationSystem(AuthenticationSystem):
             user, password = line.split(" : ")
             self.__user_credentials_dict[user] = password
         credentials.close()
-    #writes the full dictionary overwriting the file
+
+    # writes the full dictionary overwriting the file
     def __credentials_store(self):
         credentials = open(self.__credentials_file, 'w')
         for user in self.__user_credentials_dict.keys():
@@ -76,4 +78,76 @@ class InsecureAuthenticationSystem(AuthenticationSystem):
         return False
 
 
-authSystem = InsecureAuthenticationSystem("user_credentials.txt")
+class HackerschoolApp:
+
+    def __init__(self):
+        self.auth_system = InsecureAuthenticationSystem("user_credentials.txt")
+
+    def page_main_menu(self):
+        page = "Welcome To HackerSchool\n" + \
+               "Please pick one of the following options\n" + \
+               "l: Login\n" + \
+               "r: Register\n" + \
+               "q: Quit Program\n"
+
+        while True:
+            self.page_clear()
+            print(page)
+            user_choice = input(">")
+            if user_choice == "q":
+                return
+            if user_choice == "r":
+                self.page_register()
+            if user_choice == "l":
+                self.page_login()
+
+    def page_register(self):
+        self.page_clear()
+        while True:
+            print("Please insert the desired username\n")
+            username = input("username>")
+            print("Please insert the desired password\n")
+            password = input("password>")
+            if self.auth_system.register_user(username, password):
+                self.page_clear()
+                print("New Account Registered Sucessfully\n")
+                input("Press ENTER to go back to the main page")
+                break
+            else:
+                print("User Already Exists\n")
+                while True:
+                    user_choice = input("Retry(r)or Quit(q)")
+                    if user_choice == "q":
+                        return
+                    elif user_choice == "r":
+                        break
+
+
+
+    def page_login(self):
+        self.page_clear()
+        username = input("username>")
+        password = input("\npassword>")
+        if self.auth_system.login_user(username,password):
+
+        else:
+            self.page_clear()
+            print("Login Failed\n")
+            while True:
+                user_choice = input("Retry(r)or Quit(q)")
+                if user_choice == "q":
+                    return
+                elif user_choice == "r":
+                    break
+
+
+    @staticmethod
+    def page_clear():
+        if os.name == 'nt':
+            os.system('cls')
+        else:
+            os.system('clear')
+
+
+app = HackerschoolApp()
+app.page_main_menu()
