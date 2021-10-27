@@ -44,7 +44,7 @@ class InsecureAuthenticationSystem(AuthenticationSystem):
     def __credentials_load(self):
         credentials = open(self.__credentials_file)
         for line in credentials:
-            user, password = line.split(" : ")
+            user, password = line.strip().split(" : ")
             self.__user_credentials_dict[user] = password
         credentials.close()
 
@@ -70,6 +70,7 @@ class InsecureAuthenticationSystem(AuthenticationSystem):
 
     def update_user_credentials(self, username, new_password):
         self.__user_credentials_dict[username] = new_password
+        self.__credentials_store()
 
     def login_user(self, user, password):
         if self.user_exists(user):
@@ -122,23 +123,45 @@ class HackerschoolApp:
                     elif user_choice == "r":
                         break
 
-
-
     def page_login(self):
-        self.page_clear()
-        username = input("username>")
-        password = input("\npassword>")
-        if self.auth_system.login_user(username,password):
-
-        else:
+        while True:
             self.page_clear()
-            print("Login Failed\n")
-            while True:
-                user_choice = input("Retry(r)or Quit(q)")
-                if user_choice == "q":
-                    return
-                elif user_choice == "r":
-                    break
+            username = input("username>")
+            password = input("\npassword>")
+            if self.auth_system.login_user(username , password):
+                self.page_authenticated_menu(username)
+                break
+            else:
+                self.page_clear()
+                print("Login Failed\n")
+                while True:
+                    user_choice = input("Retry(r)or Quit(q)")
+                    if user_choice == "q":
+                        return
+                    elif user_choice == "r":
+                        break
+
+    def page_authenticated_menu(self, username):
+        self.page_clear()
+        page = f"Welcome {username}!!!\n" + \
+               "Please pick one of the following options\n" + \
+               "l: Logout\n" + \
+               "c: Change Password\n"
+        while True:
+            self.page_clear()
+            print(page)
+            user_choice = input(">")
+            if user_choice == "l":
+                return
+            if user_choice == "c":
+                self.page_chage_credentials(username)
+    def page_chage_credentials(self,username):
+        self.page_clear()
+        print(f"Please insert a new password for {username}\n")
+        new_password = input(">")
+        self.auth_system.update_user_credentials(username,new_password)
+        print("password updated sucessfuly please press ENTER to go back\n")
+        input()
 
 
     @staticmethod
