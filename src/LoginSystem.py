@@ -1,6 +1,6 @@
 import os
-import time
 from abc import ABC, abstractmethod
+from tictactoe import TicTacToe
 
 
 class AuthenticationSystem(ABC):
@@ -111,7 +111,7 @@ class HackerschoolApp:
             password = input("password>")
             if self.auth_system.register_user(username, password):
                 self.page_clear()
-                print("New Account Registered Sucessfully\n")
+                print("New Account Registered Successfully\n")
                 input("Press ENTER to go back to the main page")
                 break
             else:
@@ -128,7 +128,7 @@ class HackerschoolApp:
             self.page_clear()
             username = input("username>")
             password = input("\npassword>")
-            if self.auth_system.login_user(username , password):
+            if self.auth_system.login_user(username, password):
                 self.page_authenticated_menu(username)
                 break
             else:
@@ -154,15 +154,15 @@ class HackerschoolApp:
             if user_choice == "l":
                 return
             if user_choice == "c":
-                self.page_chage_credentials(username)
-    def page_chage_credentials(self,username):
+                self.page_change_credentials(username)
+
+    def page_change_credentials(self, username):
         self.page_clear()
         print(f"Please insert a new password for {username}\n")
         new_password = input(">")
-        self.auth_system.update_user_credentials(username,new_password)
-        print("password updated sucessfuly please press ENTER to go back\n")
+        self.auth_system.update_user_credentials(username, new_password)
+        print("password updated successfully please press ENTER to go back\n")
         input()
-
 
     @staticmethod
     def page_clear():
@@ -174,3 +174,4 @@ class HackerschoolApp:
 
 app = HackerschoolApp()
 app.page_main_menu()
+print(TicTacToe().board_string())
