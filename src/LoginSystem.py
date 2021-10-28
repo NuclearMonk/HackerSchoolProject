@@ -145,16 +145,19 @@ class HackerschoolApp:
         self.page_clear()
         page = f"Welcome {username}!!!\n" + \
                "Please pick one of the following options\n" + \
-               "l: Logout\n" + \
-               "c: Change Password\n"
+               "t: To Play TicTacToe\n" + \
+               "c: Change Password\n" +\
+               "l: Logout\n"
         while True:
             self.page_clear()
             print(page)
             user_choice = input(">")
             if user_choice == "l":
                 return
-            if user_choice == "c":
+            elif user_choice == "c":
                 self.page_change_credentials(username)
+            elif user_choice == "t":
+                TicTacToe().menu()
 
     def page_change_credentials(self, username):
         self.page_clear()
@@ -174,4 +177,3 @@ class HackerschoolApp:
 
 app = HackerschoolApp()
 app.page_main_menu()
-print(TicTacToe().board_string())
