@@ -8,8 +8,8 @@ class TicTacToe:
         self.gametype = 0
 
     def menu(self):
-        string = "Welcome to TicTacToe\n" +\
-                 "Choose one of the following options:\n" +\
+        string = "Welcome to TicTacToe\n" + \
+                 "Choose one of the following options:\n" + \
                  "v: To play versus another player\n" + \
                  "q: to quit\n"
 
@@ -45,7 +45,6 @@ class TicTacToe:
         return False
 
     def _check_winner(self):
-
         for x in range(3):
             result = 1
             for y in range(3):
@@ -71,7 +70,7 @@ class TicTacToe:
             return 2
         result = 1
         for i in range(3):
-            result *= self.board[2-i][i]
+            result *= self.board[2 - i][i]
         if result == 1:
             return 1
         elif result == 8:
@@ -86,20 +85,73 @@ class TicTacToe:
             os.system('clear')
 
     def game_player(self):
+        self.page_clear()
         print(self._board_string())
         for turns in range(9):
             while True:
-                x, y = input("x y >").split()
-                x = int(x)
-                y = int(y)
-                if self.play_move(x, y, self.player):
-                    print("wtf!!!!")
-                    if self.player == 1:
-                        self.player = 2
+                user_input = input(
+                    f"player{self.player}'s turn\nx for vertical y for horizontal starting at top left or q to quit\nx y >")
+                if user_input == "q":
+                    return
+                try:
+                    x, y = user_input.split()
+                    x = int(x)
+                    y = int(y)
+                    if self.play_move(x, y, self.player):
+                        if self.player == 1:
+                            self.player = 2
+                        else:
+                            self.player = 1
+                        break
                     else:
-                        self.player = 1
-                    break
+                        print("Invalid Input")
+                except:
+                    print("Invalid Input")
+            self.page_clear()
             print(self._board_string())
             if self._check_winner() != 0:
-                print(f"player {self._check_winner()}")
                 break
+        if self._check_winner() != 0:
+            print(f"PLAYER {self._check_winner()} WINS!!!")
+
+        else:
+            print(f"TIE!!")
+        print("Press ENTER to quit")
+        input()
+
+    def game_random(self):
+        self.page_clear()
+        print(self._board_string())
+        for turns in range(9):
+            if self.player == 1:
+                while True:
+                    user_input = input(
+                        f"x for vertical y for horizontal starting at top left or q to quit\nx y >")
+                    if user_input == "q":
+                        return
+                    try:
+                        x, y = user_input.split()
+                        x = int(x)
+                        y = int(y)
+                        if self.play_move(x, y, 1):
+                            break
+                        else:
+                            print("Invalid Input")
+                    except:
+                        print("Invalid Input")
+                self.player = 2
+            elif self.player == 2:
+                while True:
+                    ##TO DO, add code for Random CPU Guesses
+
+            self.page_clear()
+            print(self._board_string())
+            if self._check_winner() != 0:
+                break
+        if self._check_winner() != 0:
+            print(f"PLAYER {self._check_winner()} WINS!!!")
+
+        else:
+            print(f"TIE!!")
+        print("Press ENTER to quit")
+        input()
