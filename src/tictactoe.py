@@ -1,4 +1,5 @@
 import os
+import random
 
 
 class TicTacToe:
@@ -11,6 +12,7 @@ class TicTacToe:
         string = "Welcome to TicTacToe\n" + \
                  "Choose one of the following options:\n" + \
                  "v: To play versus another player\n" + \
+                 "c: To play versus a random CPU\n" + \
                  "q: to quit\n"
 
         self.page_clear()
@@ -20,6 +22,8 @@ class TicTacToe:
             return
         elif user_choice == "v":
             self.game_player()
+        elif user_choice == "c":
+            self.game_random()
 
     def _board_string(self):
         string = ""
@@ -120,6 +124,7 @@ class TicTacToe:
         input()
 
     def game_random(self):
+        random.seed()
         self.page_clear()
         print(self._board_string())
         for turns in range(9):
@@ -142,8 +147,11 @@ class TicTacToe:
                 self.player = 2
             elif self.player == 2:
                 while True:
-                    ##TO DO, add code for Random CPU Guesses
-
+                    cpu_x = random.randint(0,2)
+                    cpu_y = random.randint(0,2)
+                    if self.play_move(cpu_x,cpu_y,2):
+                        break
+                self.player = 1
             self.page_clear()
             print(self._board_string())
             if self._check_winner() != 0:
