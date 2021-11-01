@@ -23,7 +23,7 @@ class TicTacToe:
         elif user_choice == "v":
             self.game_player()
         elif user_choice == "c":
-            self.game_random()
+            self.game_random(random.randint(1, 2))
 
     def _board_string(self):
         string = ""
@@ -49,37 +49,23 @@ class TicTacToe:
         return False
 
     def _check_winner(self):
-        for x in range(3):
-            result = 1
-            for y in range(3):
-                result *= self.board[x][y]
-            if result == 1:
-                return 1
-            elif result == 8:
-                return 2
-        for y in range(3):
-            result = 1
-            for x in range(3):
-                result *= self.board[x][y]
-            if result == 1:
-                return 1
-            elif result == 8:
-                return 2
-        result = 1
         for i in range(3):
-            result *= self.board[i][i]
-        if result == 1:
-            return 1
-        elif result == 8:
-            return 2
-        result = 1
-        for i in range(3):
-            result *= self.board[2 - i][i]
-        if result == 1:
-            return 1
-        elif result == 8:
-            return 2
+            if self.board[i][0] != 0 and self.board[i][0] == self.board[i][1] and self.board[i][1] == self.board[i][2]:
+                return self.board[i][0]
+            if self.board[2][i] != 0 and self.board[0][i] == self.board[1][i] and self.board[1][i] == self.board[2][i]:
+                return self.board[0][i]
+        if self.board[0][0] != 0 and self.board[0][0] == self.board[1][1] and self.board[1][1] == self.board[2][2]:
+            return self.board[1][1]
+        if self.board[0][2] != 0 and self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][0]:
+            return self.board[1][1]
         return 0
+
+    def _board_is_full(self):
+        for x in range(3):
+            for y in range(3):
+                if self.board[x][y] == 0:
+                    return False
+        return True
 
     @staticmethod
     def page_clear():
@@ -91,7 +77,7 @@ class TicTacToe:
     def game_player(self):
         self.page_clear()
         print(self._board_string())
-        for turns in range(9):
+        while not self._board_is_full():
             while True:
                 user_input = input(
                     f"player{self.player}'s turn\nx for vertical y for horizontal starting at top left or q to quit\nx y >")
@@ -123,12 +109,22 @@ class TicTacToe:
         print("Press ENTER to quit")
         input()
 
-    def game_random(self):
-        random.seed()
+    def move_random(self, player_cpu):
+        while True:
+            cpu_x = random.randint(0, 2)
+            cpu_y = random.randint(0, 2)
+            if self.play_move(cpu_x, cpu_y, player_cpu):
+                break
+
+    def game_random(self, player_cpu):
+        if player_cpu == 1:
+            player_human = 2
+        else:
+            player_human = 1
         self.page_clear()
         print(self._board_string())
-        for turns in range(9):
-            if self.player == 1:
+        while not self._board_is_full():
+            if self.player == player_human:
                 while True:
                     user_input = input(
                         f"x for vertical y for horizontal starting at top left or q to quit\nx y >")
@@ -138,27 +134,84 @@ class TicTacToe:
                         x, y = user_input.split()
                         x = int(x)
                         y = int(y)
-                        if self.play_move(x, y, 1):
+                        if self.play_move(x, y, player_human):
                             break
                         else:
                             print("Invalid Input")
                     except:
                         print("Invalid Input")
+            elif self.player == player_cpu:
+                self.move_random(player_cpu)
+            if self.player == 1:
                 self.player = 2
-            elif self.player == 2:
-                while True:
-                    cpu_x = random.randint(0,2)
-                    cpu_y = random.randint(0,2)
-                    if self.play_move(cpu_x,cpu_y,2):
-                        break
+            else:
                 self.player = 1
             self.page_clear()
             print(self._board_string())
             if self._check_winner() != 0:
                 break
-        if self._check_winner() != 0:
-            print(f"PLAYER {self._check_winner()} WINS!!!")
+        if self._check_winner() == player_human:
+            print("Player Won!!!")
+        elif self._check_winner() == player_cpu:
+            print("CPU WON!!!")
+        else:
+            print(f"TIE!!")
+        print("Press ENTER to quit")
+        input()
 
+
+    def move_best(self,player_max, player_min):
+        best_move = [player_min,(0,0)]
+        for x in range(3):
+            for y in range(3):
+                if self.play_move(x, y, player_max):
+                    if self._check_winner() == player_max:
+                        return [player_max,(x,y)]
+                    elif self._check_winner() == player_min:
+                        return [player_min,(x,y)]
+                    elif self._board_is_full():
+                        return [0, (x, y)]
+                    best_move = self.move_best(player_min,player_max)
+
+
+    def game_perfect(self, player_cpu):
+        if player_cpu == 1:
+            player_human = 2
+        else:
+            player_human = 1
+        self.page_clear()
+        print(self._board_string())
+        for turns in range(9):
+            if self.player == player_human:
+                while True:
+                    user_input = input(
+                        f"x for vertical y for horizontal starting at top left or q to quit\nx y >")
+                    if user_input == "q":
+                        return
+                    try:
+                        x, y = user_input.split()
+                        x = int(x)
+                        y = int(y)
+                        if self.play_move(x, y, player_human):
+                            break
+                        else:
+                            print("Invalid Input")
+                    except:
+                        print("Invalid Input")
+            elif self.player == player_cpu:
+                self.move_random(player_cpu)
+            if self.player == 1:
+                self.player = 2
+            else:
+                self.player = 1
+            self.page_clear()
+            print(self._board_string())
+            if self._check_winner() != 0:
+                break
+        if self._check_winner() == player_human:
+            print("Player Won!!!")
+        elif self._check_winner() == player_cpu:
+            print("CPU WON!!!")
         else:
             print(f"TIE!!")
         print("Press ENTER to quit")

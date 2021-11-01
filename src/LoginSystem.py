@@ -1,4 +1,5 @@
 import os
+import random
 from abc import ABC, abstractmethod
 from tictactoe import TicTacToe
 
@@ -175,5 +176,6 @@ class HackerschoolApp:
             os.system('clear')
 
 
+random.seed()
 app = HackerschoolApp()
 app.page_main_menu()
