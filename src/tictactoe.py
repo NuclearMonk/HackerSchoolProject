@@ -1,3 +1,4 @@
+import math
 import os
 import random
 
@@ -13,6 +14,7 @@ class TicTacToe:
                  "Choose one of the following options:\n" + \
                  "v: To play versus another player\n" + \
                  "c: To play versus a random CPU\n" + \
+                 "p: T0 play versus a smart CPU\n" + \
                  "q: to quit\n"
 
         self.page_clear()
@@ -24,6 +26,8 @@ class TicTacToe:
             self.game_player()
         elif user_choice == "c":
             self.game_random(random.randint(1, 2))
+        elif user_choice == "p":
+            self.game_perfect(random.randint(1, 2))
 
     def _board_string(self):
         string = ""
@@ -109,12 +113,18 @@ class TicTacToe:
         print("Press ENTER to quit")
         input()
 
+    def possible_moves(self):
+        moves = []
+        for x in range(3):
+            for y in range(3):
+                if self.board[x][y] == 0:
+                    moves.append((x, y))
+        return moves
+
     def move_random(self, player_cpu):
-        while True:
-            cpu_x = random.randint(0, 2)
-            cpu_y = random.randint(0, 2)
-            if self.play_move(cpu_x, cpu_y, player_cpu):
-                break
+        moves = self.possible_moves()
+        move = moves[random.randint(0, len(moves) - 1)]
+        self.play_move(move[0], move[1], player_cpu)
 
     def game_random(self, player_cpu):
         if player_cpu == 1:
@@ -159,20 +169,47 @@ class TicTacToe:
         print("Press ENTER to quit")
         input()
 
+    def minmax(self, player_cpu, current_player):
+        moves = self.possible_moves()
+        winner = self._check_winner()
+        if winner != 0:
+            if winner == player_cpu:
+                return 1
+            else:
+                return -1
+        if len(moves) == 0:
+            return 0
 
-    def move_best(self,player_max, player_min):
-        best_move = [player_min,(0,0)]
-        for x in range(3):
-            for y in range(3):
-                if self.play_move(x, y, player_max):
-                    if self._check_winner() == player_max:
-                        return [player_max,(x,y)]
-                    elif self._check_winner() == player_min:
-                        return [player_min,(x,y)]
-                    elif self._board_is_full():
-                        return [0, (x, y)]
-                    best_move = self.move_best(player_min,player_max)
+        scores = []
+        for move in moves:
+            self.play_move(move[0], move[1], current_player)
+            if current_player == 2:
+                current_player = 1
+            else:
+                current_player = 2
+            scores.append(self.minmax(player_cpu, current_player))
+            if current_player == 2:
+                current_player = 1
+            else:
+                current_player = 2
+            self.board[move[0]][move[1]] = 0
+        if current_player == player_cpu:
+            return max(scores)
+        else:
+            return min(scores)
 
+    def move_best(self, player_cpu, player_human):
+        best_score = - math.inf
+        best_move = None
+        for move in self.possible_moves():
+            self.play_move(move[0], move[1], player_cpu)
+            score = self.minmax(player_cpu,player_human)
+            print("DEBUG>>", move, score)
+            self.board[move[0]][move[1]] = 0
+            if score > best_score:
+                best_score = score
+                best_move = move
+        self.play_move(best_move[0], best_move[1], player_cpu)
 
     def game_perfect(self, player_cpu):
         if player_cpu == 1:
@@ -180,6 +217,7 @@ class TicTacToe:
         else:
             player_human = 1
         self.page_clear()
+        print(player_cpu)
         print(self._board_string())
         for turns in range(9):
             if self.player == player_human:
@@ -199,7 +237,7 @@ class TicTacToe:
                     except:
                         print("Invalid Input")
             elif self.player == player_cpu:
-                self.move_random(player_cpu)
+                self.move_best(player_cpu,player_human)
             if self.player == 1:
                 self.player = 2
             else:
