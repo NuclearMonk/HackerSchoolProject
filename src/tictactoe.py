@@ -7,9 +7,13 @@ class TicTacToe:
     def __init__(self):
         self.board = [[0 for _ in range(3)] for _ in range(3)]
         self.player = 1
-        self.gametype = 0
 
     def menu(self):
+        """
+        Display the menu for the tic-tac-toe game
+        :return:
+        void
+        """
         string = "Welcome to TicTacToe\n" + \
                  "Choose one of the following options:\n" + \
                  "v: To play versus another player\n" + \
@@ -30,6 +34,12 @@ class TicTacToe:
             self.game_perfect(random.randint(1, 2))
 
     def _board_string(self):
+        """
+        Generates a printable string of the current board state
+        :return:
+        string
+            a printable tic-tac-toe board with the current game state
+        """
         string = ""
         for x in range(3):
             for y in range(3):
@@ -46,7 +56,16 @@ class TicTacToe:
                 string += "-----\n"
         return string
 
-    def play_move(self, x, y, player):
+    def _play_move(self, x, y, player):
+        """
+        Plays a move on the board withouth overriding an already played piece
+        :param x: row of the move position
+        :param y: collum of the move position
+        :param player: the value to fill in
+        :return:
+        bool
+            whether the move was played or not
+        """
         if self.board[x][y] == 0:
             self.board[x][y] = player
             return True
@@ -54,13 +73,17 @@ class TicTacToe:
 
     def _check_winner(self):
         for i in range(3):
-            if self.board[i][0] != 0 and self.board[i][0] == self.board[i][1] and self.board[i][1] == self.board[i][2]:
+            if self.board[i][0] != 0 and self.board[i][0] == self.board[i][1] and self.board[i][1] == self.board[i][
+                2]:  # check rows
                 return self.board[i][0]
-            if self.board[2][i] != 0 and self.board[0][i] == self.board[1][i] and self.board[1][i] == self.board[2][i]:
+            if self.board[2][i] != 0 and self.board[0][i] == self.board[1][i] and self.board[1][i] == self.board[2][
+                i]:  # check collumns
                 return self.board[0][i]
-        if self.board[0][0] != 0 and self.board[0][0] == self.board[1][1] and self.board[1][1] == self.board[2][2]:
+        if self.board[0][0] != 0 and self.board[0][0] == self.board[1][1] and self.board[1][1] == self.board[2][
+            2]:  # check diagonal top left bottom right
             return self.board[1][1]
-        if self.board[0][2] != 0 and self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][0]:
+        if self.board[0][2] != 0 and self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][
+            0]:  # check diagonal bottom left top right
             return self.board[1][1]
         return 0
 
@@ -91,7 +114,7 @@ class TicTacToe:
                     x, y = user_input.split()
                     x = int(x)
                     y = int(y)
-                    if self.play_move(x, y, self.player):
+                    if self._play_move(x, y, self.player):
                         if self.player == 1:
                             self.player = 2
                         else:
@@ -124,7 +147,7 @@ class TicTacToe:
     def move_random(self, player_cpu):
         moves = self.possible_moves()
         move = moves[random.randint(0, len(moves) - 1)]
-        self.play_move(move[0], move[1], player_cpu)
+        self._play_move(move[0], move[1], player_cpu)
 
     def game_random(self, player_cpu):
         if player_cpu == 1:
@@ -144,7 +167,7 @@ class TicTacToe:
                         x, y = user_input.split()
                         x = int(x)
                         y = int(y)
-                        if self.play_move(x, y, player_human):
+                        if self._play_move(x, y, player_human):
                             break
                         else:
                             print("Invalid Input")
@@ -172,6 +195,7 @@ class TicTacToe:
     def minmax(self, player_cpu, current_player):
         moves = self.possible_moves()
         winner = self._check_winner()
+        #if the game ended we return based on wether the CPU won,tied or lost
         if winner != 0:
             if winner == player_cpu:
                 return 1
@@ -180,9 +204,10 @@ class TicTacToe:
         if len(moves) == 0:
             return 0
 
+        #if the game didn't end we dig down on all possible moves
         scores = []
         for move in moves:
-            self.play_move(move[0], move[1], current_player)
+            self._play_move(move[0], move[1], current_player)
             if current_player == 2:
                 current_player = 1
             else:
@@ -193,7 +218,7 @@ class TicTacToe:
             else:
                 current_player = 2
             self.board[move[0]][move[1]] = 0
-        if current_player == player_cpu:
+        if current_player == player_cpu:    #we pick the best move the player that is currently playing can make and return the score based on that
             return max(scores)
         else:
             return min(scores)
@@ -201,15 +226,14 @@ class TicTacToe:
     def move_best(self, player_cpu, player_human):
         best_score = - math.inf
         best_move = None
-        for move in self.possible_moves():
-            self.play_move(move[0], move[1], player_cpu)
-            score = self.minmax(player_cpu,player_human)
-            print("DEBUG>>", move, score)
+        for move in self.possible_moves():  # check the outcome for all possible moves
+            self._play_move(move[0], move[1], player_cpu)
+            score = self.minmax(player_cpu, player_human)
             self.board[move[0]][move[1]] = 0
-            if score > best_score:
+            if score > best_score:      #keep track of the move with the best outcome
                 best_score = score
                 best_move = move
-        self.play_move(best_move[0], best_move[1], player_cpu)
+        self._play_move(best_move[0], best_move[1], player_cpu)  #play the  move that leads to the best outcome
 
     def game_perfect(self, player_cpu):
         if player_cpu == 1:
@@ -230,14 +254,14 @@ class TicTacToe:
                         x, y = user_input.split()
                         x = int(x)
                         y = int(y)
-                        if self.play_move(x, y, player_human):
+                        if self._play_move(x, y, player_human):
                             break
                         else:
                             print("Invalid Input")
                     except:
                         print("Invalid Input")
             elif self.player == player_cpu:
-                self.move_best(player_cpu,player_human)
+                self.move_best(player_cpu, player_human)
             if self.player == 1:
                 self.player = 2
             else:
