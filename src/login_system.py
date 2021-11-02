@@ -2,7 +2,7 @@ import os
 import random
 from abc import ABC, abstractmethod
 from tictactoe import TicTacToe
-
+from calculator import Calculator
 
 class AuthenticationSystem(ABC):
 
@@ -147,6 +147,7 @@ class HackerschoolApp:
         page = f"Welcome {username}!!!\n" + \
                "Please pick one of the following options\n" + \
                "t: To Play TicTacToe\n" + \
+               "m: To Open the Calculator\n" +\
                "c: Change Password\n" +\
                "l: Logout\n"
         while True:
@@ -155,6 +156,9 @@ class HackerschoolApp:
             user_choice = input(">")
             if user_choice == "l":
                 return
+            elif user_choice == "m":
+                self.page_clear()
+                Calculator().run()
             elif user_choice == "c":
                 self.page_change_credentials(username)
             elif user_choice == "t":
