@@ -130,8 +130,15 @@ class Calculator:
                             priority.pop()
                         priority.pop()
                         operators.pop()
+                    case _:
+                        return  None
 
         while len(operators) > 0:
             postscript.append(operators.pop(-1))
         print(postscript)
         return postscript
+
+    @staticmethod
+    def print_result(stack):
+        if stack is None:
+            print()
