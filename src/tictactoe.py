@@ -73,17 +73,13 @@ class TicTacToe:
 
     def _check_winner(self):
         for i in range(3):
-            if self.board[i][0] != 0 and self.board[i][0] == self.board[i][1] and self.board[i][1] == self.board[i][
-                2]:  # check rows
+            if self.board[i][0] != 0 and self.board[i][0] == self.board[i][1] and self.board[i][1] == self.board[i][2]:  # check rows
                 return self.board[i][0]
-            if self.board[2][i] != 0 and self.board[0][i] == self.board[1][i] and self.board[1][i] == self.board[2][
-                i]:  # check collumns
+            if self.board[2][i] != 0 and self.board[0][i] == self.board[1][i] and self.board[1][i] == self.board[2][i]:  # check collumns
                 return self.board[0][i]
-        if self.board[0][0] != 0 and self.board[0][0] == self.board[1][1] and self.board[1][1] == self.board[2][
-            2]:  # check diagonal top left bottom right
+        if self.board[0][0] != 0 and self.board[0][0] == self.board[1][1] and self.board[1][1] == self.board[2][2]:  # check diagonal top left bottom right
             return self.board[1][1]
-        if self.board[0][2] != 0 and self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][
-            0]:  # check diagonal bottom left top right
+        if self.board[0][2] != 0 and self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][0]:  # check diagonal bottom left top right
             return self.board[1][1]
         return 0
 
@@ -101,36 +97,47 @@ class TicTacToe:
         else:
             os.system('clear')
 
+    def player_swap(self):
+        if self.player == 1:
+            self.player = 2
+        else:
+            self.player = 1
+
+    def player_input(self):
+        moves = self.possible_moves()
+        while True:
+            user_input = input(
+                f"player{self.player}'s turn\nx for vertical y for horizontal starting at top left or q to quit\nx y >")
+            if user_input == "q":
+                return None
+            try:
+                x, y = user_input.split()
+                x = int(x)
+                y = int(y)
+                move = (x, y)
+                if move in moves:
+                    return move
+                else:
+                    print("Invalid Input")
+            except:
+                print("Invalid Input")
+
     def game_player(self):
         self.page_clear()
         print(self._board_string())
         while not self._board_is_full():
-            while True:
-                user_input = input(
-                    f"player{self.player}'s turn\nx for vertical y for horizontal starting at top left or q to quit\nx y >")
-                if user_input == "q":
-                    return
-                try:
-                    x, y = user_input.split()
-                    x = int(x)
-                    y = int(y)
-                    if self._play_move(x, y, self.player):
-                        if self.player == 1:
-                            self.player = 2
-                        else:
-                            self.player = 1
-                        break
-                    else:
-                        print("Invalid Input")
-                except:
-                    print("Invalid Input")
+            move = self.player_input()
+            if move is None:
+                return
+            else:
+                self._play_move(move[0], move[1], self.player)
             self.page_clear()
             print(self._board_string())
             if self._check_winner() != 0:
                 break
+            self.player_swap()
         if self._check_winner() != 0:
             print(f"PLAYER {self._check_winner()} WINS!!!")
-
         else:
             print(f"TIE!!")
         print("Press ENTER to quit")
@@ -158,31 +165,20 @@ class TicTacToe:
         print(self._board_string())
         while not self._board_is_full():
             if self.player == player_human:
-                while True:
-                    user_input = input(
-                        f"x for vertical y for horizontal starting at top left or q to quit\nx y >")
-                    if user_input == "q":
-                        return
-                    try:
-                        x, y = user_input.split()
-                        x = int(x)
-                        y = int(y)
-                        if self._play_move(x, y, player_human):
-                            break
-                        else:
-                            print("Invalid Input")
-                    except:
-                        print("Invalid Input")
+                move = self.player_input()
+                if move is None:
+                    return
+                else:
+                    self._play_move(move[0], move[1], self.player)
+                self.page_clear()
+                print(self._board_string())
             elif self.player == player_cpu:
                 self.move_random(player_cpu)
-            if self.player == 1:
-                self.player = 2
-            else:
-                self.player = 1
             self.page_clear()
             print(self._board_string())
             if self._check_winner() != 0:
                 break
+            self.player_swap()
         if self._check_winner() == player_human:
             print("Player Won!!!")
         elif self._check_winner() == player_cpu:
@@ -195,7 +191,7 @@ class TicTacToe:
     def minmax(self, player_cpu, current_player):
         moves = self.possible_moves()
         winner = self._check_winner()
-        #if the game ended we return based on wether the CPU won,tied or lost
+        # if the game ended we return based on wether the CPU won,tied or lost
         if winner != 0:
             if winner == player_cpu:
                 return 1
@@ -204,7 +200,7 @@ class TicTacToe:
         if len(moves) == 0:
             return 0
 
-        #if the game didn't end we dig down on all possible moves
+        # if the game didn't end we dig down on all possible moves
         scores = []
         for move in moves:
             self._play_move(move[0], move[1], current_player)
@@ -218,7 +214,7 @@ class TicTacToe:
             else:
                 current_player = 2
             self.board[move[0]][move[1]] = 0
-        if current_player == player_cpu:    #we pick the best move the player that is currently playing can make and return the score based on that
+        if current_player == player_cpu:  # we pick the best move the player that is currently playing can make and return the score based on that
             return max(scores)
         else:
             return min(scores)
@@ -230,10 +226,10 @@ class TicTacToe:
             self._play_move(move[0], move[1], player_cpu)
             score = self.minmax(player_cpu, player_human)
             self.board[move[0]][move[1]] = 0
-            if score > best_score:      #keep track of the move with the best outcome
+            if score > best_score:  # keep track of the move with the best outcome
                 best_score = score
                 best_move = move
-        self._play_move(best_move[0], best_move[1], player_cpu)  #play the  move that leads to the best outcome
+        self._play_move(best_move[0], best_move[1], player_cpu)  # play the  move that leads to the best outcome
 
     def game_perfect(self, player_cpu):
         if player_cpu == 1:
@@ -245,27 +241,14 @@ class TicTacToe:
         print(self._board_string())
         for turns in range(9):
             if self.player == player_human:
-                while True:
-                    user_input = input(
-                        f"x for vertical y for horizontal starting at top left or q to quit\nx y >")
-                    if user_input == "q":
-                        return
-                    try:
-                        x, y = user_input.split()
-                        x = int(x)
-                        y = int(y)
-                        if self._play_move(x, y, player_human):
-                            break
-                        else:
-                            print("Invalid Input")
-                    except:
-                        print("Invalid Input")
+                move = self.player_input()
+                if move is None:
+                    return
+                else:
+                    self._play_move(move[0], move[1], self.player)
             elif self.player == player_cpu:
                 self.move_best(player_cpu, player_human)
-            if self.player == 1:
-                self.player = 2
-            else:
-                self.player = 1
+            self.player_swap()
             self.page_clear()
             print(self._board_string())
             if self._check_winner() != 0:

@@ -1,14 +1,15 @@
 class Calculator:
 
     def run(self):
-        expression = self.read_expression()
-        l = self.expression_to_list(expression)
-        p = self.list_to_postscript(l)
-        print(self.postscript_calculator(p))
-
-    @staticmethod
-    def read_expression():
-        return input("Input Math expression\n")
+        while True:
+            expression = input("Input Math expression or q to Quit\n")
+            if expression == "q":
+                return
+            l = self.expression_to_list(expression)
+            print(l)
+            p = self.list_to_postscript(l)
+            print(p)
+            self.print_result(self.postscript_calculator(p))
 
     @staticmethod
     def expression_to_list(expression: str):
@@ -16,31 +17,34 @@ class Calculator:
         return l
 
     @staticmethod
-    def postscript_calculator(postscrip_list: list):
+    def postscript_calculator(postscript_list: list):
         stack = []
-        for symbol in postscrip_list:
-            if symbol.isnumeric():
-                stack.append(float(symbol))
-            else:
-                match symbol:
-                    case "+":
-                        stack[-2] = stack[-2] + stack[-1]
-                    case "-":
-                        stack[-2] = stack[-2] - stack[-1]
-                    case "*":
-                        stack[-2] = stack[-2] * stack[-1]
-                    case "/":
-                        stack[-2] = stack[-2] / stack[-1]
-                    case "**":
-                        stack[-2] = stack[-2] ** stack[-1]
-                    case "%":
-                        stack[-2] = stack[-2] % stack[-1]
-                stack.pop(-1)
+        try:
+            for symbol in postscript_list:
+                if symbol.isnumeric():
+                    stack.append(float(symbol))
+                else:
+                    match symbol:
+                        case "+":
+                            stack[-2] = stack[-2] + stack[-1]
+                        case "-":
+                            stack[-2] = stack[-2] - stack[-1]
+                        case "*":
+                            stack[-2] = stack[-2] * stack[-1]
+                        case "/":
+                            stack[-2] = stack[-2] / stack[-1]
+                        case "**":
+                            stack[-2] = stack[-2] ** stack[-1]
+                        case "%":
+                            stack[-2] = stack[-2] % stack[-1]
+                    stack.pop(-1)
 
-        return stack
+            return stack
+        except:
+            return None
 
     @staticmethod
-    def list_to_postscript(expression_list:list):
+    def list_to_postscript(expression_list: list):
         postscript = []
         operators = []
         priority = []
@@ -54,7 +58,7 @@ class Calculator:
                             operators.append("+")
                             priority.append(0)
                         else:
-                            while priority[-1]>0:
+                            while priority[-1] > 0:
                                 postscript.append(operators.pop())
                                 priority.pop()
                                 if len(priority) == 0:
@@ -128,17 +132,22 @@ class Calculator:
                         while priority[-1] != -1:
                             postscript.append(operators.pop())
                             priority.pop()
+                            if len(priority) == 0:
+                                return None
                         priority.pop()
                         operators.pop()
                     case _:
-                        return  None
+                        return None
 
         while len(operators) > 0:
-            postscript.append(operators.pop(-1))
+            operator = operators.pop()
+            postscript.append(operator)
         print(postscript)
         return postscript
 
     @staticmethod
     def print_result(stack):
         if stack is None:
-            print()
+            print("Invalid Input")
+        else:
+            print(stack[0])
