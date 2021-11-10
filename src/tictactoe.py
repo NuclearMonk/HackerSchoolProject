@@ -18,7 +18,7 @@ class TicTacToe:
                  "Choose one of the following options:\n" + \
                  "v: To play versus another player\n" + \
                  "c: To play versus a random CPU\n" + \
-                 "p: T0 play versus a smart CPU\n" + \
+                 "p: To play versus a smart CPU\n" + \
                  "q: to quit\n"
 
         self.page_clear()
@@ -104,10 +104,14 @@ class TicTacToe:
             self.player = 1
 
     def player_input(self):
+        """
+        :return:
+        None if the player wants to quit otherwise returns a tuple with the move that was played
+        """
         moves = self.possible_moves()
         while True:
             user_input = input(
-                f"player{self.player}'s turn\nx for vertical y for horizontal starting at top left or q to quit\nx y >")
+                f"player {self.player}'s turn\nx for vertical y for horizontal starting at top left or q to quit\nx y >")
             if user_input == "q":
                 return None
             try:
